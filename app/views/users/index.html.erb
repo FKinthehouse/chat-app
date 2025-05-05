@@ -1,0 +1,54 @@
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-2xl font-bold mb-6">Users</h1>
+  
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="mb-4">
+      <input type="text" id="user-search" placeholder="Search users..." class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+    </div>
+    
+    <div class="space-y-2">
+      <% if @users.any? %>
+        <% @users.each do |user| %>
+          <div class="user-item flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg border border-gray-100">
+            <div class="flex items-center">
+              <div class="relative">
+                <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
+                  <%= user.name[0].upcase %>
+                </div>
+                <span class="absolute bottom-0 right-0 block h-3 w-3 rounded-full <%= user.online? ? 'bg-green-500' : 'bg-gray-400' %>"></span>
+              </div>
+              <div class="ml-3">
+                <p class="font-semibold"><%= user.name %></p>
+                <p class="text-sm text-gray-500"><%= user.online? ? 'Online' : 'Offline' %></p>
+              </div>
+            </div>
+            <%= link_to 'Message', user_path(user), class: 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded-lg' %>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-gray-500 text-center py-4">No users found</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('user-search');
+    const userItems = document.querySelectorAll('.user-item');
+    
+    searchInput.addEventListener('input', function() {
+      const searchValue = this.value.toLowerCase();
+      
+      userItems.forEach(item => {
+        const userName = item.querySelector('.font-semibold').textContent.toLowerCase();
+        
+        if (userName.includes(searchValue)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>

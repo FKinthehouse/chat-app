@@ -1,0 +1,10 @@
+<%= turbo_stream.append "messages" do %>
+  <%= render "messages/message", message: @message %>
+<% end %>
+
+<%= turbo_stream.replace "message-form" do %>
+  <%= form_with(model: [@chat, Message.new], id: 'message-form', class: "flex") do |form| %>
+    <%= form.text_field :content, placeholder: "Type a message...", class: "flex-grow rounded-l-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+    <%= form.submit "Send", class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg" %>
+  <% end %>
+<% end %> 

@@ -1,0 +1,381 @@
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+  <!-- Left sidebar -->
+  <div class="bg-white rounded-lg shadow-md p-4">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-semibold">Chats</h2>
+      <button id="new-chat-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded">
+        New Chat
+      </button>
+    </div>
+    
+    <!-- New Chat Form (hidden by default) -->
+    <div id="new-chat-form" class="hidden bg-gray-100 p-3 rounded-lg mb-4">
+      <%= form_with(model: Chat.new, local: true) do |form| %>
+        <div class="mb-2">
+          <%= form.label :name, "Chat Name", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_field :name, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+        </div>
+        
+        <div class="mb-3">
+          <%= form.label :is_group, class: "flex items-center" do %>
+            <%= form.check_box :is_group, class: "h-4 w-4 text-blue-600 border-gray-300 rounded mr-2" %>
+            <span class="text-sm font-medium text-gray-700">Group Chat</span>
+          <% end %>
+        </div>
+        
+        <div id="group-members" class="hidden mb-3">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Select Members</label>
+          <div class="max-h-40 overflow-y-auto">
+            <% @users.each do |user| %>
+              <div class="flex items-center">
+                <input type="checkbox" name="user_ids[]" value="<%= user.id %>" class="h-4 w-4 text-blue-600 border-gray-300 rounded mr-2">
+                <span><%= user.name %></span>
+                <span class="ml-2 text-xs <%= user.online? ? 'text-green-500' : 'text-gray-500' %>">
+                  <%= user.online? ? 'online' : 'offline' %>
+                </span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        
+        <div id="direct-message" class="mb-3">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Select User</label>
+          <select name="user_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+            <% @users.each do |user| %>
+              <option value="<%= user.id %>"><%= user.name %> (<%= user.online? ? 'online' : 'offline' %>)</option>
+            <% end %>
+          </select>
+        </div>
+        
+        <div class="flex justify-end space-x-2">
+          <button type="button" id="cancel-chat-button" class="py-1 px-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100">
+            Cancel
+          </button>
+          <%= form.submit "Create", class: "py-1 px-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md" %>
+        </div>
+      <% end %>
+    </div>
+    
+    <!-- Chat List -->
+    <div class="space-y-2 mt-3">
+      <% if @chats.any? %>
+        <% @chats.each do |chat| %>
+          <%= link_to chat_path(chat), class: "block p-3 rounded-lg hover:bg-gray-100 transition duration-150 relative" do %>
+            <div class="flex justify-between items-center">
+              <div class="flex-grow">
+                <div class="flex items-center">
+                  <h3 class="font-medium"><%= chat.display_name_for(current_user) %></h3>
+                  
+                  <% if @unread_counts[chat.id] && @unread_counts[chat.id] > 0 %>
+                    <span class="ml-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      <%= @unread_counts[chat.id] > 9 ? '9+' : @unread_counts[chat.id] %>
+                    </span>
+                  <% end %>
+                </div>
+                <p class="text-sm text-gray-500 truncate max-w-xs">
+                  <% if chat.is_group? %>
+                    <%= pluralize(chat.users.count, 'member') %>
+                    
+                    <% if chat.messages.any? %>
+                      • <span class="text-gray-600 font-medium">
+                        <%= chat.messages.last.user == current_user ? 'You' : chat.messages.last.user.name %>:
+                      </span>
+                      <%= truncate(chat.messages.last.content, length: 30) %>
+                    <% end %>
+                  <% else %>
+                    <% other_user = chat.users.where.not(id: current_user.id).first %>
+                    <% if other_user %>
+                      <span class="user-status-indicator" data-user-id="<%= other_user.id %>">
+                        <span class="user-online-dot <%= other_user.online? ? 'bg-green-500' : 'bg-gray-400' %> inline-block w-2 h-2 rounded-full mr-1"></span>
+                        <span class="user-status-text <%= other_user.status_color_class %>">
+                          <% status_icon_class = case other_user.status 
+                            when "Available" then "status-available-icon"
+                            when "Busy" then "status-busy-icon"
+                            when "Do not disturb" then "status-dnd-icon"
+                            when "Be right back" then "status-brb-icon"
+                            when "Appear away" then "status-away-icon"
+                            when "Appear offline" then "status-offline-icon"
+                            else ""
+                            end %>
+                          <span class="<%= status_icon_class %> user-status-icon"></span>
+                          <%= other_user.status == "Appear offline" ? "Offline" : (other_user.status == "Appear away" ? "Away" : other_user.status) %>
+                        </span>
+                      </span>
+                      
+                      <% if chat.messages.any? %>
+                        • <span class="text-gray-600 font-medium">
+                          <%= chat.messages.last.user == current_user ? 'You' : chat.messages.last.user.name %>:
+                        </span>
+                        <%= truncate(chat.messages.last.content, length: 30) %>
+                      <% end %>
+                    <% end %>
+                  <% end %>
+                </p>
+              </div>
+              <div class="ml-2 flex flex-col items-end">
+                <% if chat.messages.any? %>
+                  <span class="text-xs text-gray-500 whitespace-nowrap">
+                    <%= time_ago_in_words(chat.messages.last.created_at) %> ago
+                  </span>
+                <% else %>
+                  <span class="text-xs text-gray-500">New</span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      <% else %>
+        <p class="text-gray-500 text-center py-4">No chats yet. Start a conversation!</p>
+      <% end %>
+    </div>
+  </div>
+  
+  <!-- Main content area -->
+  <div class="lg:col-span-3 bg-white rounded-lg shadow-md p-4">
+    <div class="flex items-center justify-center h-full">
+      <div class="text-center">
+        <h2 class="text-xl font-semibold text-gray-700 mb-2">Welcome to Chat App</h2>
+        <p class="text-gray-500 mb-4">Select a chat from the sidebar or start a new conversation.</p>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // CRITICAL FIX: Immediately check and clear badges on page load before any other scripts run
+  (function() {
+    console.log('Immediate badge clearing execution');
+    
+    // Check all chats that have been viewed (from sessionStorage)
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key && key.startsWith('chat_') && key.endsWith('_viewed')) {
+        const chatId = key.replace('chat_', '').replace('_viewed', '');
+        console.log('Found viewed chat:', chatId);
+        
+        // Immediately hide any badges for this chat
+        document.querySelectorAll(`a[href*="/chats/${chatId}"] .ml-2.bg-red-500.text-white.text-xs.font-bold.rounded-full`).forEach(badge => {
+          badge.classList.add('hidden');
+          badge.style.display = 'none';
+          console.log('Badge hidden for chat', chatId);
+        });
+        
+        // Also mark as read in localStorage
+        localStorage.setItem(`chat_${chatId}_read`, 'true');
+      }
+    }
+    
+    // Check localStorage too
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('chat_') && key.endsWith('_read')) {
+        const chatId = key.replace('chat_', '').replace('_read', '');
+        if (localStorage.getItem(key) === 'true') {
+          // Immediately hide any badges for this chat
+          document.querySelectorAll(`a[href*="/chats/${chatId}"] .ml-2.bg-red-500.text-white.text-xs.font-bold.rounded-full`).forEach(badge => {
+            badge.classList.add('hidden');
+            badge.style.display = 'none';
+            console.log('Badge hidden for read chat', chatId);
+          });
+        }
+      }
+    }
+  })();
+  
+  // Use DOMContentLoaded or turbo:load to ensure the elements are available
+  document.addEventListener('turbo:load', initChatApp);
+  document.addEventListener('DOMContentLoaded', initChatApp);
+  
+  function initChatApp() {
+    console.log('Initializing chat app');
+    initChatForms();
+    checkReadStatus();
+  }
+  
+  function initChatForms() {
+    console.log('Initializing chat form controls');
+    const newChatButton = document.getElementById('new-chat-button');
+    const newChatForm = document.getElementById('new-chat-form');
+    const cancelChatButton = document.getElementById('cancel-chat-button');
+    const isGroupCheckbox = document.getElementById('chat_is_group');
+    const groupMembers = document.getElementById('group-members');
+    const directMessage = document.getElementById('direct-message');
+    
+    if (newChatButton) {
+      newChatButton.addEventListener('click', function() {
+        console.log('New chat button clicked');
+        newChatForm.classList.remove('hidden');
+        newChatButton.classList.add('hidden');
+      });
+    }
+    
+    if (cancelChatButton) {
+      cancelChatButton.addEventListener('click', function() {
+        console.log('Cancel button clicked');
+        newChatForm.classList.add('hidden');
+        newChatButton.classList.remove('hidden');
+      });
+    }
+    
+    if (isGroupCheckbox) {
+      isGroupCheckbox.addEventListener('change', function() {
+        console.log('Group checkbox toggled:', this.checked);
+        if (this.checked) {
+          groupMembers.classList.remove('hidden');
+          directMessage.classList.add('hidden');
+        } else {
+          groupMembers.classList.add('hidden');
+          directMessage.classList.remove('hidden');
+        }
+      });
+    }
+  }
+  
+  // Function to check if chats have been read and hide notification badges
+  function checkReadStatus() {
+    console.log('Checking read status of chats');
+    
+    // AGGRESSIVE: Immediately clear all badges that should be hidden
+    document.querySelectorAll('a[href^="/chats/"]').forEach(link => {
+      const href = link.getAttribute('href');
+      const chatIdMatch = href.match(/\/chats\/(\d+)/);
+      
+      if (chatIdMatch && chatIdMatch[1]) {
+        const chatId = chatIdMatch[1];
+        const chatRead = localStorage.getItem(`chat_${chatId}_read`);
+        
+        // Force hide badge if chat was previously read
+        if (chatRead === 'true') {
+          const badge = link.querySelector('.ml-2.bg-red-500.text-white.text-xs.font-bold.rounded-full');
+          if (badge) {
+            badge.classList.add('hidden');
+            badge.style.display = 'none'; // More aggressive approach using direct style
+            console.log(`Aggressively hiding badge for chat ${chatId}`);
+            
+            // Force server sync
+            forceSyncReadStatus(chatId);
+          }
+        }
+      }
+    });
+  }
+  
+  // Function to force sync read status with server
+  function forceSyncReadStatus(chatId) {
+    // Skip if already syncing
+    if (window.syncingChatIds && window.syncingChatIds.has(chatId)) {
+      return;
+    }
+    
+    // Track which chats we're syncing
+    if (!window.syncingChatIds) {
+      window.syncingChatIds = new Set();
+    }
+    window.syncingChatIds.add(chatId);
+    
+    console.log(`Force syncing read status for chat ${chatId}`);
+    
+    // Call server to ensure read status is synced
+    fetch(`/chats/${chatId}/messages/mark_as_read`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+      },
+      credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Server confirmed read status update:', data);
+      window.syncingChatIds.delete(chatId);
+      
+      // AGGRESSIVE: After server confirms, manually check again
+      setTimeout(() => {
+        const badge = document.querySelector(`a[href*="/chats/${chatId}"] .ml-2.bg-red-500.text-white.text-xs.font-bold.rounded-full`);
+        if (badge) {
+          badge.classList.add('hidden');
+          badge.style.display = 'none';
+          console.log(`Re-hiding badge for chat ${chatId} after server sync`);
+        }
+      }, 100);
+    })
+    .catch(error => {
+      console.error('Error syncing read status with server:', error);
+      window.syncingChatIds.delete(chatId);
+    });
+  }
+  
+  // Run checkReadStatus on multiple events to ensure badges are hidden
+  document.addEventListener('turbo:load', function() {
+    // Immediate check
+    checkReadStatus();
+    
+    // Check again after a delay to catch dynamically added badges
+    setTimeout(checkReadStatus, 500);
+    setTimeout(checkReadStatus, 1500);
+  });
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    // Immediate check
+    checkReadStatus();
+    
+    // Check again after a delay to catch dynamically added badges
+    setTimeout(checkReadStatus, 500);
+    setTimeout(checkReadStatus, 1500);
+  });
+  
+  // Additional event listener for page load to specifically handle notification badges
+  window.addEventListener('load', function() {
+    // Immediate check
+    checkReadStatus();
+    
+    // Multiple delayed checks to ensure badges are cleared
+    [200, 500, 1000, 2000, 3000].forEach(delay => {
+      setTimeout(checkReadStatus, delay);
+    });
+    
+    // AGGRESSIVE: Also force-check all read chats and clear their badges
+    setTimeout(() => {
+      console.log('Performing aggressive badge cleanup on page load');
+      
+      // Get all chat IDs that should be marked as read
+      const readChatIds = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('chat_') && key.endsWith('_read')) {
+          const chatId = key.replace('chat_', '').replace('_read', '');
+          if (localStorage.getItem(key) === 'true') {
+            readChatIds.push(chatId);
+            
+            // Find and hide any badges for this chat
+            document.querySelectorAll(`a[href*="/chats/${chatId}"] .ml-2.bg-red-500.text-white.text-xs.font-bold.rounded-full`).forEach(badge => {
+              badge.classList.add('hidden');
+              badge.style.display = 'none';
+              console.log(`Force-hiding badge for chat ${chatId}`);
+            });
+            
+            // Also sync with server
+            forceSyncReadStatus(chatId);
+          }
+        }
+      }
+      
+      console.log('Found read chat IDs:', readChatIds);
+    }, 1000);
+  });
+  
+  // Create a MutationObserver to watch for dynamically added badges
+  const badgeObserver = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+        setTimeout(checkReadStatus, 50); // Check after a short delay
+      }
+    });
+  });
+  
+  // Start observing the document body for added nodes
+  badgeObserver.observe(document.body, { childList: true, subtree: true });
+</script>

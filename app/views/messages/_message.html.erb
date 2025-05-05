@@ -1,0 +1,33 @@
+<% is_current_user = message.user == current_user %>
+
+<div class="message mb-4 <%= is_current_user ? 'flex justify-end' : 'flex justify-start' %>" id="message-<%= message.id %>">
+  <% unless is_current_user %>
+    <div class="flex-shrink-0 mr-2 self-end">
+      <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
+        <%= message.user.name[0].upcase %>
+      </div>
+    </div>
+  <% end %>
+  
+  <div class="<%= is_current_user ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800' %> rounded-lg px-4 py-3 max-w-xs lg:max-w-md">
+    <div class="message-user font-semibold text-sm <%= is_current_user ? 'text-blue-200' : 'text-gray-700' %> mb-1">
+      <%= is_current_user ? "You" : message.user.name %>
+    </div>
+    
+    <div class="message-content break-words text-md">
+      <%= message.content %>
+    </div>
+    
+    <div class="message-time text-xs text-right <%= is_current_user ? 'text-blue-200' : 'text-gray-500' %> mt-1">
+      <%= message.created_at.strftime("%I:%M %p") %>
+    </div>
+  </div>
+  
+  <% if is_current_user %>
+    <div class="flex-shrink-0 ml-2 self-end">
+      <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+        <%= current_user.name[0].upcase %>
+      </div>
+    </div>
+  <% end %>
+</div> 

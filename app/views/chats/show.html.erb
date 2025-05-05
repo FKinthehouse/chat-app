@@ -1,0 +1,410 @@
+<div id="chat-container" data-chat-id="<%= @chat.id %>" class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+  <!-- Left sidebar -->
+  <div class="bg-white rounded-lg shadow-md p-4">
+    <div class="mb-4">
+      <%= link_to chats_path, class: "text-blue-500 hover:text-blue-700" do %>
+        <span class="mr-1">&larr;</span> Back to Chats
+      <% end %>
+    </div>
+    
+    <div class="border-b pb-4 mb-4">
+      <h2 class="text-lg font-semibold"><%= @chat.display_name_for(current_user) %></h2>
+      <% if @chat.is_group? %>
+        <p class="text-sm text-gray-500"><%= @chat.users.count %> members</p>
+      <% end %>
+    </div>
+    
+    <div>
+      <h3 class="text-md font-medium mb-2">Members</h3>
+      <div class="space-y-2 members-list">
+        <% @chat_members.each do |member| %>
+          <div class="flex items-center justify-between p-2 hover:bg-gray-100 rounded-lg" data-user-id="<%= member.id %>">
+            <div class="flex items-center">
+              <div class="relative">
+                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600">
+                  <%= member.name[0].upcase %>
+                </div>
+                <span class="user-online-dot absolute bottom-0 right-0 block h-2 w-2 rounded-full <%= member.online? ? 'bg-green-500' : 'bg-gray-400' %>"></span>
+              </div>
+              <div class="ml-2">
+                <p class="font-medium"><%= member.name %></p>
+                <p class="user-status-indicator text-xs" data-user-id="<%= member.id %>">
+                  <span class="user-status-text <%= member.status_color_class %>">
+                    <% status_icon_class = case member.status 
+                      when "Available" then "status-available-icon"
+                      when "Busy" then "status-busy-icon"
+                      when "Do not disturb" then "status-dnd-icon"
+                      when "Be right back" then "status-brb-icon"
+                      when "Appear away" then "status-away-icon"
+                      when "Appear offline" then "status-offline-icon"
+                      else ""
+                      end %>
+                    <span class="<%= status_icon_class %> user-status-icon"></span>
+                    <%= member.status == "Appear offline" ? "Offline" : (member.status == "Appear away" ? "Away" : member.status) %>
+                  </span>
+                </p>
+              </div>
+            </div>
+            
+            <% if @chat.is_group? && @chat.admin?(current_user) && member != current_user %>
+              <%= button_to remove_member_chat_path(@chat, user_id: member.id), method: :delete, data: { confirm: "Are you sure you want to remove this member?" }, class: "text-red-500 hover:text-red-700 text-sm" do %>
+                Remove
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      
+      <% if @chat.is_group? && @chat.admin?(current_user) %>
+        <div class="mt-4">
+          <button id="add-member-button" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded">
+            Add Members
+          </button>
+          
+          <div id="add-member-form" class="hidden mt-3 bg-gray-100 p-3 rounded-lg">
+            <%= form_with(url: add_member_chat_path(@chat), method: :post, local: true) do |form| %>
+              <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Select User</label>
+                <select name="user_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                  <% User.where.not(id: @chat_members.pluck(:id)).each do |user| %>
+                    <option value="<%= user.id %>"><%= user.name %></option>
+                  <% end %>
+                </select>
+              </div>
+              
+              <div class="flex justify-end space-x-2">
+                <button type="button" id="cancel-add-button" class="py-1 px-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100">
+                  Cancel
+                </button>
+                <%= form.submit "Add", class: "py-1 px-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <% if @chat.is_group? && @chat.admin?(current_user) %>
+      <div class="mt-6 pt-4 border-t">
+        <%= button_to chat_path(@chat), method: :delete, data: { confirm: "Are you sure you want to delete this chat?" }, class: "w-full bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded" do %>
+          Delete Chat
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  
+  <!-- Main chat area -->
+  <div class="lg:col-span-3 bg-white rounded-lg shadow-md p-4 flex flex-col h-[80vh]">
+    <!-- Chat header -->
+    <div class="border-b pb-3 mb-3 chat-header">
+      <h2 class="text-lg font-semibold"><%= @chat.display_name_for(current_user) %></h2>
+      <% unless @chat.is_group? %>
+        <% other_user = @chat.users.where.not(id: current_user.id).first %>
+        <% if other_user %>
+          <p class="text-sm user-status-indicator" data-user-id="<%= other_user.id %>">
+            <span class="user-online-dot header-online-dot inline-block w-2 h-2 rounded-full mr-1 <%= other_user.online? ? 'bg-green-500' : 'bg-gray-400' %>"></span>
+            <span class="user-status-text chat-header-status <%= other_user.status_color_class %>">
+              <% status_icon_class = case other_user.status 
+                when "Available" then "status-available-icon"
+                when "Busy" then "status-busy-icon"
+                when "Do not disturb" then "status-dnd-icon"
+                when "Be right back" then "status-brb-icon"
+                when "Appear away" then "status-away-icon"
+                when "Appear offline" then "status-offline-icon"
+                else ""
+                end %>
+              <span class="<%= status_icon_class %>"></span>
+              <%= other_user.status == "Appear offline" ? "Offline" : (other_user.status == "Appear away" ? "Away" : other_user.status) %>
+            </span>
+            <% if !other_user.online? && other_user.last_seen_at %>
+            <span class="ml-1 text-gray-500 text-xs">
+              (Last seen: <%= time_ago_in_words(other_user.last_seen_at) %> ago)
+            </span>
+            <% end %>
+          </p>
+        <% end %>
+      <% end %>
+    </div>
+    
+    <!-- Chat messages -->
+    <div id="messages" class="flex-grow overflow-y-auto mb-4 p-2 space-y-6">
+      <% if @messages.any? %>
+        <% @messages.each do |message| %>
+          <%= render 'messages/message', message: message %>
+        <% end %>
+      <% else %>
+        <div class="text-center text-gray-500 py-4">
+          No messages yet. Start the conversation!
+        </div>
+      <% end %>
+    </div>
+    
+    <!-- Typing indicator -->
+    <div id="typing-indicator" class="text-gray-500 text-sm italic mb-2 hidden"></div>
+    
+    <!-- Message form -->
+    <div class="border-t pt-3 chat-input-container">
+      <%= form_with(model: [@chat, @message], local: false, id: 'message-form', class: "flex") do |form| %>
+        <%= form.text_field :content, placeholder: "Type a message...", autocomplete: 'off', class: "flex-grow rounded-l-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+        <%= form.submit "Send", class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg" %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+  // CRITICAL FIX: Immediately clear badges for this chat on page load
+  (function() {
+    const chatContainer = document.getElementById('chat-container');
+    const chatId = chatContainer?.dataset.chatId;
+    if (chatId) {
+      console.log('Immediate badge cleanup for chat', chatId);
+      
+      // Immediately mark as read in localStorage
+      localStorage.setItem(`chat_${chatId}_read`, 'true');
+      localStorage.setItem(`chat_${chatId}_read_at`, Date.now().toString());
+      
+      // Store this information in sessionStorage too to persist across page changes
+      sessionStorage.setItem(`chat_${chatId}_viewed`, 'true');
+      
+      // Force badges clear via direct DOM manipulation
+      document.querySelectorAll(`a[href*="/chats/${chatId}"] .ml-2.bg-red-500.text-white.text-xs.font-bold.rounded-full`).forEach(badge => {
+        badge.classList.add('hidden');
+        badge.style.display = 'none';
+        console.log('Badge hidden via immediate script execution');
+      });
+      
+      // Use fetch to mark as read immediately
+      fetch(`/chats/${chatId}/messages/mark_as_read`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+        },
+        credentials: 'same-origin'
+      }).then(() => console.log('Immediate read status update sent to server'));
+    }
+  })();
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    // Function to scroll messages to the bottom
+    function scrollToBottom() {
+    const messagesContainer = document.getElementById('messages');
+    if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight + 1000;
+        
+        // Double-check scroll position after a short delay
+        setTimeout(() => {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight + 1000;
+        }, 50);
+      }
+    }
+    
+    // Initial scroll to bottom when page loads
+    scrollToBottom();
+    
+    // Scroll to bottom again after any images load
+    const messageImages = document.querySelectorAll('#messages img');
+    messageImages.forEach(img => {
+      img.onload = scrollToBottom;
+    });
+    
+    // Mark messages as read when the chat is viewed
+    const chatContainer = document.getElementById('chat-container');
+    const chatId = chatContainer?.dataset.chatId;
+    if (chatId) {
+      console.log(`Marking messages as read for chat ${chatId}`);
+      
+      // AGGRESSIVE: Immediately mark this chat as read in localStorage
+      localStorage.setItem(`chat_${chatId}_read`, 'true');
+      localStorage.setItem(`chat_${chatId}_read_at`, Date.now().toString());
+      
+      // AGGRESSIVE: Immediately clear any badges for this chat in the current window
+      document.querySelectorAll(`a[href*="/chats/${chatId}"] .ml-2.bg-red-500.text-white.text-xs.font-bold.rounded-full`).forEach(badge => {
+        badge.classList.add('hidden');
+        badge.style.display = 'none';
+        console.log('Immediately hiding badge for current chat');
+      });
+      
+      // First, mark as read on the server
+      fetch(`/chats/${chatId}/messages/mark_as_read`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+        },
+        credentials: 'same-origin'
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Marked messages as read:', data);
+        
+        // Set local storage flag to indicate we've read messages in this chat
+        localStorage.setItem(`chat_${chatId}_read`, 'true');
+        localStorage.setItem(`chat_${chatId}_read_at`, Date.now().toString());
+        
+        // Additionally, try to directly update badge visibility on the chats page
+        try {
+          // Check if we can access parent window (for cases where chat is opened in same window)
+          if (window.opener) {
+            updateParentWindowBadges(chatId);
+          }
+          
+          // Also check for badges in the current window (for navigation within the same window)
+          updateCurrentWindowBadges(chatId);
+        } catch (e) {
+          console.log('Could not update badges:', e);
+        }
+      })
+      .catch(error => {
+        console.error('Error marking messages as read:', error);
+      });
+      
+      // AGGRESSIVE: Schedule multiple clean-up attempts
+      [100, 500, 1000, 2000, 5000].forEach(delay => {
+        setTimeout(() => {
+          // Update localStorage each time
+          localStorage.setItem(`chat_${chatId}_read`, 'true');
+          localStorage.setItem(`chat_${chatId}_read_at`, Date.now().toString());
+          
+          // Try to clear badges in both windows
+          try {
+            updateCurrentWindowBadges(chatId);
+            if (window.opener) {
+              updateParentWindowBadges(chatId);
+            }
+          } catch (e) {
+            console.log(`Error in scheduled cleanup at ${delay}ms:`, e);
+          }
+        }, delay);
+      });
+      
+      // Also set up a mutation observer to watch for any new badges that might appear
+      setupBadgeObserver(chatId);
+    }
+    
+    // Function to update badges in parent window
+    function updateParentWindowBadges(chatId) {
+      try {
+        const badges = window.opener.document.querySelectorAll(`.ml-2.bg-red-500.text-white.text-xs.font-bold.rounded-full`);
+        badges.forEach(badge => {
+          const badgeParent = badge.closest(`a[href*="/chats/${chatId}"]`);
+          if (badgeParent) {
+            badge.classList.add('hidden');
+            badge.style.display = 'none'; // More aggressive using style
+            console.log('Updated badge in parent window');
+          }
+        });
+      } catch (e) {
+        console.log('Could not update parent window badges:', e);
+      }
+    }
+    
+    // Function to update badges in current window
+    function updateCurrentWindowBadges(chatId) {
+      const badges = document.querySelectorAll(`.ml-2.bg-red-500.text-white.text-xs.font-bold.rounded-full`);
+      badges.forEach(badge => {
+        const badgeParent = badge.closest(`a[href*="/chats/${chatId}"]`);
+        if (badgeParent) {
+          badge.classList.add('hidden');
+          badge.style.display = 'none'; // More aggressive using style
+          console.log('Updated badge in current window');
+        }
+      });
+    }
+    
+    // Setup a mutation observer to watch for new badges and hide them
+    function setupBadgeObserver(chatId) {
+      // Create a mutation observer to watch for any new badges
+      const badgeObserver = new MutationObserver((mutations) => {
+        mutations.forEach(mutation => {
+          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            // Check if any added nodes contain badges for this chat
+            mutation.addedNodes.forEach(node => {
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                // Look for badges inside this node
+                const badges = node.querySelectorAll ? 
+                  node.querySelectorAll(`.ml-2.bg-red-500.text-white.text-xs.font-bold.rounded-full`) : [];
+                
+                badges.forEach(badge => {
+                  const badgeParent = badge.closest(`a[href*="/chats/${chatId}"]`);
+                  if (badgeParent) {
+                    badge.classList.add('hidden');
+                    badge.style.display = 'none'; // More aggressive using style
+                    console.log('Hid newly added badge via observer');
+                  }
+                });
+              }
+            });
+          }
+        });
+      });
+      
+      // Start observing the document body for added nodes
+      badgeObserver.observe(document.body, { childList: true, subtree: true });
+      
+      // Store reference so we can disconnect later if needed
+      window.badgeObserver = badgeObserver;
+      
+      // Additionally set a repeating check
+      const intervalId = setInterval(() => {
+        updateCurrentWindowBadges(chatId);
+        try {
+          if (window.opener) {
+            updateParentWindowBadges(chatId);
+          }
+        } catch (e) {
+          // Ignore errors in interval
+        }
+      }, 2000);
+      
+      // Store interval ID for potential cleanup
+      window.badgeCheckInterval = intervalId;
+    }
+    
+    // Handle message form submission
+    const messageForm = document.getElementById('message-form');
+    if (messageForm) {
+      messageForm.addEventListener('ajax:success', function() {
+        // Clear the input field
+        const inputField = messageForm.querySelector('input[name="message[content]"]');
+        if (inputField) {
+          inputField.value = '';
+        }
+        
+        // Since we've just sent a message, we can consider this chat "read" for us
+        // (We don't need notifications for our own messages)
+        localStorage.setItem(`chat_${chatId}_read`, 'true');
+        localStorage.setItem(`chat_${chatId}_read_at`, Date.now().toString());
+        
+        // Scroll to bottom after submission
+        setTimeout(scrollToBottom, 100);
+      });
+      
+      // Also handle manual form submission
+      messageForm.addEventListener('submit', function() {
+        setTimeout(scrollToBottom, 100);
+      });
+    }
+    
+    // Member management is now handled by chat_members.js
+    
+    // After any turbo frame loads, scroll to bottom
+    document.addEventListener('turbo:frame-load', scrollToBottom);
+    
+    // After message submission, make sure to scroll to bottom
+    document.addEventListener('turbo:submit-end', function(event) {
+      if (event.target.closest('#message-form')) {
+        setTimeout(scrollToBottom, 100);
+      }
+    });
+    
+    // Make sure chat read state is properly set on page unload
+    window.addEventListener('beforeunload', function() {
+      if (chatId) {
+        localStorage.setItem(`chat_${chatId}_read`, 'true');
+        localStorage.setItem(`chat_${chatId}_read_at`, Date.now().toString());
+      }
+    });
+  });
+</script>

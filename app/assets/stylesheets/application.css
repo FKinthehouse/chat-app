@@ -1,0 +1,677 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS (and SCSS, if configured) file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+
+/* Notification styles */
+.notification-dot {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 5px rgba(220, 38, 38, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+/* Chat message improvements */
+.message.flex.justify-end .message-user {
+  text-align: right;
+}
+
+.message.flex.justify-start .message-user {
+  text-align: left;
+}
+
+/* Improve typing indicator */
+#typing-indicator {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+#typing-indicator.hidden {
+  opacity: 0;
+}
+
+/* Online status indicators */
+.status-indicator {
+  display: inline-block;
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.status-indicator.online {
+  background-color: #10b981;
+}
+
+.status-indicator.offline {
+  background-color: #9ca3af;
+}
+
+/* Better message styling */
+.message {
+  margin-bottom: 16px;
+  clear: both;
+  display: flex;
+  align-items: flex-end;
+}
+
+.message.flex.justify-end {
+  justify-content: flex-end;
+}
+
+.message.flex.justify-start {
+  justify-content: flex-start;
+}
+
+/* Improved avatar bubble style */
+.message .rounded-full {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Message content styling */
+.message .bg-blue-500 {
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.message .bg-gray-200 {
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Bubble tails */
+.message.flex.justify-end .bg-blue-500:after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  bottom: 10px;
+  width: 10px;
+  height: 10px;
+  background-color: #3b82f6; /* blue-500 */
+  transform: rotate(45deg);
+  z-index: -1;
+}
+
+.message.flex.justify-start .bg-gray-200:after {
+  content: "";
+  position: absolute;
+  left: -6px;
+  bottom: 10px;
+  width: 10px;
+  height: 10px;
+  background-color: #e5e7eb; /* gray-200 */
+  transform: rotate(45deg);
+  z-index: -1;
+}
+
+/* Animation for new messages */
+@keyframes message-appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message {
+  animation: message-appear 0.3s ease-out;
+}
+
+/* Improved chat container styling */
+#messages {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(203, 213, 225, 0.5) transparent;
+}
+
+#messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+#messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#messages::-webkit-scrollbar-thumb {
+  background-color: rgba(203, 213, 225, 0.5);
+  border-radius: 6px;
+}
+
+/* Chat input area */
+.chat-input-container {
+  border-top: 1px solid #e5e7eb;
+  padding: 10px;
+  background: white;
+}
+
+/* Status menu styling */
+#status-dropdown-menu {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.status-option {
+  transition: background-color 0.2s;
+}
+
+.status-option:hover {
+  background-color: #f3f4f6;
+}
+
+/* Status colors */
+.status-available {
+  color: #10b981 !important;
+}
+
+.status-busy,
+.status-dnd {
+  color: #ef4444 !important;
+}
+
+.status-away,
+.status-brb {
+  color: #f59e0b !important;
+}
+
+.status-offline {
+  color: #9ca3af !important;
+}
+
+/* Status indicators */
+.status-indicator-available {
+  background-color: #10b981;
+}
+
+.status-indicator-busy,
+.status-indicator-dnd {
+  background-color: #ef4444;
+}
+
+.status-indicator-away,
+.status-indicator-brb {
+  background-color: #f59e0b;
+}
+
+.status-indicator-offline {
+  background-color: #9ca3af;
+}
+
+/* Status icons */
+.status-icon {
+  display: inline-block;
+  margin-right: 5px;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
+
+/* Status notification animation */
+.status-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 12px 16px;
+  z-index: 1000;
+  transform: translateY(-100px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  display: flex;
+  align-items: center;
+  pointer-events: none; /* Prevent capturing mouse events */
+}
+
+/* Chrome/Brave specific fixes */
+.status-notification.chrome-fix {
+  /* Use more aggressive styles for Chrome */
+  opacity: 0 !important;
+  display: none;
+  visibility: hidden;
+  transform: translateY(-100px);
+  transition: all 0.3s ease !important;
+}
+
+.status-notification.chrome-fix.show {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  display: flex !important;
+  visibility: visible !important;
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  z-index: 9999 !important;
+}
+
+.status-notification.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.status-notification-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.status-notification-message {
+  flex: 1;
+  font-size: 14px;
+}
+
+/* Be right back icon - clock */
+.status-brb-icon::before {
+  content: "⏱";
+  font-size: 12px;
+}
+
+/* Away icon - arrow */
+.status-away-icon::before {
+  content: "↗";
+  font-size: 12px;
+}
+
+/* Busy icon - dash */
+.status-busy-icon::before {
+  content: "🔴";
+  font-size: 12px;
+}
+
+/* Available icon - check */
+.status-available-icon::before {
+  content: "✓";
+  font-size: 12px;
+}
+
+/* Do not disturb icon - minus */
+.status-dnd-icon::before {
+  content: "⛔";
+  font-size: 12px;
+  display: inline-block !important;
+  visibility: visible !important;
+}
+
+/* Offline icon */
+.status-offline-icon::before {
+  content: "⚪";
+  font-size: 12px;
+  display: inline-block !important;
+  visibility: visible !important;
+}
+
+/* Ensure all status icons are visible */
+[class*="-icon"]::before {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* New message indicator */
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+#new-message-indicator {
+  transition: all 0.3s ease;
+}
+
+#new-message-indicator:hover {
+  background-color: #3b82f6; /* blue-600 */
+  transform: scale(1.05);
+}
+
+/* Make chat header more visible */
+.chat-header {
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Status classes with better transitions */
+.user-status-indicator {
+  transition: all 0.3s ease;
+}
+
+.status-available,
+.status-busy,
+.status-dnd,
+.status-away,
+.status-brb,
+.status-offline {
+  transition: color 0.3s ease;
+}
+
+.user-online-dot {
+  transition: background-color 0.3s ease;
+}
+
+/* Members list styles */
+.members-list .user-status-indicator {
+  display: flex;
+  align-items: center;
+}
+
+.members-list .user-online-dot {
+  margin-right: 4px;
+}
+
+/* Status icons with better visibility */
+.status-available-icon::before,
+.status-busy-icon::before,
+.status-dnd-icon::before,
+.status-brb-icon::before,
+.status-away-icon::before,
+.status-offline-icon::before {
+  margin-right: 4px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Dropdown menu status icons */
+#status-dropdown-menu .status-available-icon::before {
+  content: "✓";
+  font-size: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+}
+
+#status-dropdown-menu .status-busy-icon::before {
+  content: "•";
+  font-size: 16px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+}
+
+#status-dropdown-menu .status-dnd-icon::before {
+  content: "—";
+  font-size: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+}
+
+#status-dropdown-menu .status-brb-icon::before {
+  content: "⏱";
+  font-size: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+}
+
+#status-dropdown-menu .status-away-icon::before {
+  content: "↗";
+  font-size: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+}
+
+#status-dropdown-menu .status-offline-icon::before {
+  content: "×";
+  font-size: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+}
+
+/* Make the status icons in dropdown menu relative for proper positioning */
+#status-dropdown-menu [class*="-icon"] {
+  position: relative;
+}
+
+/* Force repaint class to help with UI updates */
+.force-repaint {
+  padding: 0.001px;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Fix for status indicator colors */
+.bg-red-500 {
+  background-color: #ef4444 !important;
+}
+
+.text-red-500 {
+  color: #ef4444 !important;
+}
+
+.bg-green-500 {
+  background-color: #10b981 !important;
+}
+
+.text-green-500 {
+  color: #10b981 !important;
+}
+
+.bg-yellow-500 {
+  background-color: #f59e0b !important;
+}
+
+.text-yellow-500 {
+  color: #f59e0b !important;
+}
+
+/* Chrome/Brave specific badge fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  /* This targets only Webkit browsers (Chrome, Safari, etc.) */
+  .ml-2.bg-red-500.text-white.text-xs.font-bold.rounded-full {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 50 !important;
+  }
+
+  /* Make badges pop more in Chrome */
+  .bg-red-500 {
+    background-color: #ef4444 !important;
+    box-shadow: 0 0 3px rgba(239, 68, 68, 0.7) !important;
+  }
+
+  /* Make sure status notifications always appear on top */
+  .status-notification {
+    z-index: 9999 !important;
+  }
+}
+
+/* Typing indicator animation */
+@keyframes typingDots {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+.typing-dots {
+  display: inline-block;
+  animation: typingDots 1.4s infinite;
+  margin-left: 2px;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+/* Emoji picker styles - completely redone for better visibility */
+.emoji-button {
+  position: absolute !important;
+  right: 72px !important; /* Position to left of send button */
+  bottom: 16px !important;
+  z-index: 100 !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: #f3f4f6 !important;
+  color: #4c51bf !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.emoji-button:hover {
+  transform: scale(1.1) !important;
+  background-color: #e5e7eb !important;
+  color: #4338ca !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.emoji-button:active {
+  transform: scale(0.95) !important;
+}
+
+/* Make emoji button more visible in Chrome/Brave */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .emoji-button {
+    background-color: #eff6ff !important; /* light blue background */
+    color: #2563eb !important; /* blue icon */
+    border: 2px solid #3b82f6 !important; /* blue border */
+    transform: scale(1.1) !important; /* slightly larger */
+  }
+}
+
+emoji-picker {
+  --background: white;
+  --border-color: #e2e8f0;
+  --indicator-color: #4c51bf;
+  --input-border-color: #e2e8f0;
+  --input-font-color: #4a5568;
+  --input-placeholder-color: #a0aec0;
+  --outline-color: #4c51bf;
+  width: 320px !important;
+  height: 380px !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  z-index: 9999 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Additional CSS to optimize notification speed for Chrome/Brave */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  /* Pre-animate elements for faster notification display */
+  .status-notification {
+    will-change: transform, opacity !important;
+    backface-visibility: hidden !important;
+    transform: translateZ(0) !important;
+  }
+
+  /* Optimize status notification animation for Chrome */
+  .status-notification.show {
+    transition-delay: 0ms !important;
+    transition-duration: 100ms !important;
+  }
+}
+
+/* New very visible emoji button styles */
+.emoji-button-visible {
+  position: absolute !important;
+  right: 66px !important;
+  bottom: 10px !important;
+  width: 36px !important;
+  height: 36px !important;
+  font-size: 20px !important;
+  background-color: #e0e7ff !important;
+  border-radius: 50% !important;
+  border: 2px solid #4f46e5 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 1000 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+  transition: transform 0.2s ease !important;
+  color: #000 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.emoji-button-visible:hover {
+  transform: scale(1.1) !important;
+  background-color: #c7d2fe !important;
+}
+
+.emoji-button-visible:active {
+  transform: scale(0.95) !important;
+}
+
+/* Ensure emoji picker is always visible */
+emoji-picker {
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 9999 !important;
+}
+
+emoji-picker.hidden {
+  display: none !important;
+}

@@ -1,0 +1,139 @@
+<nav class="bg-white shadow-lg">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="flex justify-between">
+      <div class="flex space-x-7">
+        <div>
+          <!-- Website Logo -->
+          <a href="<%= root_path %>" class="flex items-center py-4 px-2">
+            <span class="font-semibold text-gray-500 text-lg">Chat App</span>
+          </a>
+        </div>
+        <!-- Primary Navbar items -->
+        <div class="hidden md:flex items-center space-x-1">
+          <a href="<%= chats_path %>" class="py-4 px-2 text-gray-500 font-semibold hover:text-blue-500 transition duration-300">Chats</a>
+          <a href="<%= users_path %>" class="py-4 px-2 text-gray-500 font-semibold hover:text-blue-500 transition duration-300">Users</a>
+        </div>
+      </div>
+      <!-- Secondary Navbar items -->
+      <div class="hidden md:flex items-center space-x-3 ">
+        <div class="flex items-center space-x-2">
+          <div class="relative inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm">
+            <div class="relative">
+              <span class="inline-flex justify-center items-center w-8 h-8 rounded-full bg-gray-300 text-gray-600 font-bold mr-2">
+                <%= current_user.name[0].upcase %>
+              </span>
+              <span class="<%= current_user.online? ? 'bg-green-500' : 'bg-gray-500' %> absolute bottom-0 right-0 rounded-full h-3 w-3 border-2 border-white"></span>
+            </div>
+            <div>
+              <span class="font-medium"><%= current_user.name %></span>
+              <div class="relative">
+                <button id="status-dropdown-button" class="flex items-center text-xs <%= current_user.online? ? 'text-green-500' : 'text-gray-400' %> hover:text-blue-500">
+                  <span id="current-status"><%= current_user.status %></span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                <div id="status-dropdown-menu" class="hidden absolute z-10 mt-1 -ml-2 w-48 bg-white rounded-md shadow-lg p-2">
+                  <%= form_with(url: update_status_path, method: :patch, id: "status-form") do |f| %>
+                    <div class="status-option flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer" data-status="Available">
+                      <span class="status-available-icon inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+                      <span>Available</span>
+                    </div>
+                    
+                    <div class="status-option flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer" data-status="Busy">
+                      <span class="status-busy-icon inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                      <span>Busy</span>
+                    </div>
+                    
+                    <div class="status-option flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer" data-status="Do not disturb">
+                      <span class="status-dnd-icon inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                      <span>Do not disturb</span>
+                    </div>
+                    
+                    <div class="status-option flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer" data-status="Be right back">
+                      <span class="status-brb-icon inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>
+                      <span>Be right back</span>
+                    </div>
+                    
+                    <div class="status-option flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer" data-status="Appear away">
+                      <span class="status-away-icon inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>
+                      <span>Appear away</span>
+                    </div>
+                    
+                    <div class="status-option flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer" data-status="Appear offline">
+                      <span class="status-offline-icon inline-block w-3 h-3 rounded-full bg-gray-400 mr-2"></span>
+                      <span>Appear offline</span>
+                    </div>
+                    
+                    <hr class="my-2 border-gray-200">
+                    
+                    <div class="status-option flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer" data-status="Reset status">
+                      <span class="inline-block w-3 h-3 rounded-full border border-gray-400 mr-2"></span>
+                      <span>Reset status</span>
+                    </div>
+                    
+                    <%= f.hidden_field :status, id: "status-field" %>
+                    <%= f.hidden_field :online_status, id: "online-status-field", value: "true" %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a href="<%= edit_user_registration_path %>" class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white font-semibold rounded-lg">
+          Account
+        </a>
+        <%= button_to "Sign Out", destroy_user_session_path, method: :delete, data: { turbo: false }, class: "px-4 py-2 bg-red-500 hover:bg-red-700 text-white font-semibold rounded-lg" %>
+      </div>
+      <!-- Mobile menu button -->
+      <div class="md:hidden flex items-center">
+        <button id="mobile-menu-button" class="mobile-menu-button outline-none p-2">
+          <svg class="w-6 h-6 text-gray-500 hover:text-blue-500" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+            <path d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden mobile-menu">
+    <ul class="pt-2 pb-4">
+      <li><a href="<%= chats_path %>" class="block text-sm px-4 py-2 text-gray-500 font-semibold hover:bg-blue-500 hover:text-white transition duration-300">Chats</a></li>
+      <li><a href="<%= users_path %>" class="block text-sm px-4 py-2 text-gray-500 font-semibold hover:bg-blue-500 hover:text-white transition duration-300">Users</a></li>
+      <li><a href="<%= edit_user_registration_path %>" class="block text-sm px-4 py-2 text-gray-500 font-semibold hover:bg-blue-500 hover:text-white transition duration-300">Account</a></li>
+      <li><%= button_to "Sign Out", destroy_user_session_path, method: :delete, data: { turbo: false }, class: "block w-full text-left text-sm px-4 py-2 text-gray-500 font-semibold hover:bg-red-500 hover:text-white transition duration-300" %></li>
+    </ul>
+  </div>
+</nav>
+
+<script>
+  // Function to initialize mobile menu
+  function initMobileMenu() {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    if (mobileMenuButton && mobileMenu) {
+      console.log("Initializing mobile menu");
+      
+      // Remove any existing listeners
+      const newButton = mobileMenuButton.cloneNode(true);
+      mobileMenuButton.parentNode.replaceChild(newButton, mobileMenuButton);
+      
+      // Add click handler
+      newButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("Mobile menu button clicked");
+        mobileMenu.classList.toggle('hidden');
+      });
+    } else {
+      console.log("Mobile menu elements not found");
+    }
+  }
+  
+  // Initialize on both regular page load and Turbo navigation
+  document.addEventListener('DOMContentLoaded', initMobileMenu);
+  document.addEventListener('turbo:load', initMobileMenu);
+  document.addEventListener('turbo:render', initMobileMenu);
+</script> 
