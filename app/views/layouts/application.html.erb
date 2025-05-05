@@ -13,9 +13,22 @@
     <%= yield :head %>
 
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    
+    <!-- Multiple icon formats for different browsers -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon.png">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    
+    <!-- Safari specific -->
+    <link rel="mask-icon" href="/icon.svg" color="#4f46e5">
     <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="apple-touch-icon-precomposed" href="/icon.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon_small.png">
+    
+    <!-- Set theme color for browser UI -->
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
