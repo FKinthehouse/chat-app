@@ -8,22 +8,20 @@
     <%= csp_meta_tag %>
     <% if user_signed_in? %>
       <meta name="current-user-id" content="<%= current_user.id %>">
+      <meta name="user-chat-ids" content="<%= current_user.chats.pluck(:id).join(',') %>">
     <% end %>
 
     <%= yield :head %>
 
+    <!-- Simple favicon setup that works across browsers -->
+    <link rel="shortcut icon" href="/icon.png">
+    <link rel="icon" href="/icon.png">
+    
+    <!-- Apple Touch Icons - Safari -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    
+    <!-- Web app manifest -->
     <link rel="manifest" href="/manifest.json">
-    
-    <!-- Multiple icon formats for different browsers -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon.png">
-    <link rel="icon" type="image/svg+xml" href="/icon.svg">
-    
-    <!-- Safari specific -->
-    <link rel="mask-icon" href="/icon.svg" color="#4f46e5">
-    <link rel="apple-touch-icon" href="/icon.png">
-    <link rel="apple-touch-icon-precomposed" href="/icon.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="/icon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/icon_small.png">
     
     <!-- Set theme color for browser UI -->
     <meta name="theme-color" content="#4f46e5">

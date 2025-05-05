@@ -33,6 +33,57 @@ document.addEventListener("visibilitychange", function () {
   }
 });
 
+// === Global Notifications Across All Chats ===
+function initializeGlobalNotifications() {
+  const metaChatIds = document.querySelector('meta[name="user-chat-ids"]');
+  const metaUserId = document.querySelector('meta[name="current-user-id"]');
+  if (!metaChatIds || !metaUserId) return;
+
+  const currentUserId = metaUserId.content;
+  const chatIds = metaChatIds.content.split(",").filter((id) => id);
+
+  chatIds.forEach((chatId) => {
+    consumer.subscriptions.create(
+      { channel: "ChatChannel", id: chatId },
+      {
+        received(data) {
+          // Skip own messages
+          if (data.sender_id == currentUserId) return;
+
+          // Parse message HTML to extract sender name and content
+          const temp = document.createElement("div");
+          temp.innerHTML = data.html;
+          const sender =
+            temp.querySelector(".message-user")?.textContent.trim() ||
+            "New message";
+          const content =
+            temp.querySelector(".message-content")?.textContent.trim() || "";
+
+          // Only show notifications when user is not on this chat page
+          const currentChat =
+            document.getElementById("chat-container")?.dataset.chatId;
+          if (currentChat === chatId) return;
+
+          // Request permission if needed
+          if (Notification.permission === "default") {
+            Notification.requestPermission();
+          }
+          if (Notification.permission === "granted") {
+            new Notification(sender, {
+              body: content,
+              icon: "/icon.png",
+              tag: `chat_notification_${chatId}`,
+            });
+          }
+        },
+      }
+    );
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initializeGlobalNotifications);
+// === End Global Notifications ===
+
 function initializeChatChannel() {
   const chatContainer = document.getElementById("chat-container");
 
@@ -136,14 +187,7 @@ function initializeChatChannel() {
               `🧑‍💻 Current user ID: ${currentUserId}, Recipient ID: ${data.recipient_id}`
             );
 
-            // Only filter messages if recipient_id is explicitly set and doesn't match
-            if (data.recipient_id && data.recipient_id != currentUserId) {
-              console.log("⚠️ Message not intended for this user, skipping");
-              return;
-            }
-
-            // REMOVE this check - it's causing legitimate messages to be filtered out
-            // Instead, trust the server-side broadcast filtering
+            // Trust server-side broadcast filtering; do not skip any messages
 
             console.log("📝 Appending message to chat");
             this.appendMessage(data.html);

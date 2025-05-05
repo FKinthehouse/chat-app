@@ -1,32 +1,46 @@
 # Chat App
 
-A real-time chat application similar to Slack built with Ruby on Rails, Action Cable, and Stimulus.
+A real-time chat application with multiple features ideal for team communication.
 
 ## Features
 
-- User authentication with Devise
-- Real-time messaging with Action Cable
-- Direct messages between users
-- Group chats with multiple members
-- Real-time online/offline user status
-- Typing indicators
-- Message history
-- User presence tracking
+- **Real-Time Communication**: Instant message delivery with ActionCable WebSockets
+- **Group & Direct Messaging**: Create group chats with multiple users or chat directly one-on-one
+- **Live Typing Indicators**: See when other users are typing in real-time
+- **Rich Status System**: Set your status (Available, Busy, Do not disturb, Away, etc.)
+- **Emoji Support**: Express yourself with a wide range of emojis
+- **Message Notifications**: Browser notifications for new messages
+- **Unread Message Badges**: Clear visual indicators for unread conversations
+- **Online Presence**: See which users are currently online
+- **Cross-Browser Compatibility**: Works in Safari, Chrome, Brave and other modern browsers
+- **Mobile-Responsive Design**: Use on any device with a responsive layout
 
-## Prerequisites
+## Tech Stack
 
-- Ruby 3.x
-- Rails 7.x
-- Redis (for Action Cable)
-- Node.js and Yarn (for Webpacker)
+- **Ruby on Rails 7**: Backend framework
+- **Tailwind CSS**: Responsive styling
+- **Hotwire & Turbo**: Modern Rails front-end
+- **ActionCable**: WebSocket implementation
+- **Devise**: User authentication
+- **SQLite/PostgreSQL**: Database
+- **Importmaps**: JavaScript module management
 
-## Installation
+## Setup Instructions
+
+### Prerequisites
+
+- Ruby 3.0.0+
+- Rails 7.0.0+
+- Node.js 14+ and Yarn
+- SQLite3 or PostgreSQL
+
+### Installation
 
 1. Clone the repository
 
    ```
-   git clone <repository-url>
-   cd chat_app
+   git clone https://github.com/FKinthehouse/chat-app.git
+   cd chat-app
    ```
 
 2. Install dependencies
@@ -36,53 +50,36 @@ A real-time chat application similar to Slack built with Ruby on Rails, Action C
    yarn install
    ```
 
-3. Set up the database
+3. Setup database
 
    ```
    rails db:create
    rails db:migrate
+   rails db:seed
    ```
 
-4. Start Redis server (if not already running)
-
-   ```
-   redis-server
-   ```
-
-5. Start the Rails server
+4. Start the server
 
    ```
    bin/dev
    ```
 
-6. Visit `http://localhost:3000` in your browser
+5. Visit `http://localhost:3000` in your browser
 
-## Usage
+## Development Notes
 
-1. Sign up for an account
-2. Navigate to the Users tab to see all available users
-3. Start a direct conversation with any user
-4. Create group chats for team discussions
-5. See real-time online status of all your contacts
+- **Browser Compatibility**: Notification system has specific optimizations for Chrome/Brave browsers
+- **WebSocket Fallbacks**: Includes polling fallbacks when WebSockets are unavailable
+- **Status Tracking**: Implements server-side session tracking for accurate online presence
 
-## Technology Stack
+## Screenshots
 
-- Ruby on Rails 7.0+
-- Action Cable for WebSockets
-- Devise for authentication
-- Stimulus.js for frontend interactivity
-- Tailwind CSS for styling
-- Redis for Action Cable backend
-- PostgreSQL for database (in production)
+[Include screenshots here when available]
 
-## Future Improvements
+## Hackathon Project
 
-- File sharing
-- Message reactions
-- Video/audio calls
-- Mobile app
-- End-to-end encryption
+This app was developed for a hackathon, focusing on building a robust real-time communication platform with emphasis on user experience and reliability across browsers.
 
 ## License
 
-This project is licensed under the MIT License.
+This project is available as open source under the terms of the MIT License.
