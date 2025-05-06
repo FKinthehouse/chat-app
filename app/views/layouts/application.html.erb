@@ -31,6 +31,19 @@
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
     
+    <!-- Rails UJS for AJAX form submissions -->
+    <script src="https://cdn.jsdelivr.net/npm/@rails/ujs@7.0.1/lib/assets/compiled/rails-ujs.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Rails !== 'undefined') {
+          Rails.start();
+          console.log("Rails UJS loaded and started");
+        } else {
+          console.error("Rails UJS failed to load");
+        }
+      });
+    </script>
+    
     <!-- Emoji Picker Element -->
     <script src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.26.3/index.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.26.3/css/emoji-picker.css">

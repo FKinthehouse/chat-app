@@ -136,9 +136,19 @@
       <div class="text-center">
         <h2 class="text-xl font-semibold text-gray-700 mb-2">Welcome to Chat App</h2>
         <p class="text-gray-500 mb-4">Select a chat from the sidebar or start a new conversation.</p>
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
+        <div class="flex flex-col items-center">
+          <div class="center-icon mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          </div>
+          <a href="/ai_chat" class="bg-indigo-600 hover:bg-indigo-700 text-gray-900 font-bold py-3 px-6 rounded-lg flex items-center justify-center mt-4 mb-4 transition-all duration-300 transform hover:scale-105 shadow-lg" style="font-size: 1.1rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 ai-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span style="display:inline;">Chat with AI Assistant</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>

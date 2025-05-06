@@ -27,6 +27,11 @@ Rails.application.routes.draw do
 
   root 'home#index'
 
+  # AI Chat routes
+  get 'ai_chat', to: 'chats#ai_chat'
+  post 'ai_chat/message', to: 'chats#ai_message'
+  post 'ai_chat/clear', to: 'chats#clear_ai_chat'
+
   resources :chats, only: [:index, :show, :create, :update, :destroy] do
     resources :messages, only: [:create] do
       collection do

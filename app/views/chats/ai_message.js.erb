@@ -1,0 +1,64 @@
+// Get references to DOM elements
+const messagesContainer = document.getElementById('messages-container');
+const aiThinking = document.getElementById('ai-thinking');
+const messageForm = document.getElementById('message-form');
+const input = document.querySelector('input[name="message[content]"]');
+
+console.log("AI message response received");
+
+// Hide AI thinking indicator
+if (aiThinking) {
+  aiThinking.classList.add('hidden');
+}
+
+// Reset the form input
+if (input) {
+  input.value = '';
+  input.focus();
+}
+
+// Process messages from the server
+<% if @messages.present? %>
+  // Clear existing messages for a fresh rebuild
+  messagesContainer.innerHTML = '';
+  
+  <% @messages.each do |message| %>
+    <% if message[:is_ai] %>
+      // Add AI message
+      messagesContainer.innerHTML += `
+        <div class="flex items-start mb-4">
+          <div class="flex-shrink-0 bg-indigo-600 rounded-full p-2">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div class="ml-3 bg-gray-100 rounded-lg py-4 px-5 max-w-3xl shadow-sm">
+            <p class="text-gray-800">${"<%= message[:content].to_s.gsub('"', '\\"').gsub("\n", '<br>').html_safe %>"}</p>
+          </div>
+        </div>
+      `;
+    <% else %>
+      // Add user message
+      messagesContainer.innerHTML += `
+        <div class="flex items-end mb-4 justify-end">
+          <div class="mr-3 bg-indigo-600 text-white rounded-lg py-3 px-4 max-w-3xl shadow-sm">
+            <p>${"<%= message[:content].to_s.gsub('"', '\\"').gsub("\n", '<br>').html_safe %>"}</p>
+          </div>
+          <div class="flex-shrink-0 bg-indigo-800 rounded-full p-2">
+            <span class="w-6 h-6 flex items-center justify-center text-white font-bold">${"<%= current_user.name[0].upcase %>"}</span>
+          </div>
+        </div>
+      `;
+    <% end %>
+  <% end %>
+<% end %>
+
+// Scroll to the bottom of the messages container
+setTimeout(() => {
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}, 100);
+
+// Remove any existing welcome message and suggestion chips
+document.querySelectorAll('.suggestion-chip').forEach(el => {
+  el.closest('.flex').style.display = 'none';
+}); 

@@ -26,6 +26,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_05_190249) do
     t.boolean "is_group"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_ai_chat", default: false
   end
 
   create_table "messages", force: :cascade do |t|
