@@ -42,6 +42,12 @@ jobs:
       - name: Run Ruby tests
         run: bundle exec rake
 
+      - name: Generate Coverage Badge
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./coverage/lcov.info
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:

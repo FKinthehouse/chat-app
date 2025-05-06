@@ -2,6 +2,8 @@
 
 A real-time chat application with multiple features ideal for team communication.
 
+[![Coverage Status](https://coveralls.io/repos/github/FKinthehouse/chat-app/badge.svg?branch=main)](https://coveralls.io/github/FKinthehouse/chat-app?branch=main)
+
 ## Features
 
 - **Real-Time Communication**: Instant message delivery with ActionCable WebSockets
