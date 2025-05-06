@@ -20,6 +20,7 @@ SimpleCov.start 'rails' do
   add_filter '/config/'
   add_filter '/vendor/'
   add_filter '/spec/'
+  enable_coverage :branch
 end
 
 ENV["RAILS_ENV"] ||= "test"
@@ -29,7 +30,17 @@ require "rails/test_help"
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors)
+    parallelize(workers: :number_of_processors, with: :processes)
+
+    # Force SimpleCov to run in each process
+    parallelize_setup do |worker|
+      SimpleCov.command_name "#{SimpleCov.command_name}-#{worker}"
+    end
+
+    # Combine the results after tests are done
+    parallelize_teardown do |worker|
+      SimpleCov.result
+    end
 
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all

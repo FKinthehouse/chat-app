@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: true
+      RAILS_ENV: test
+      SIMPLECOV: true
 
     steps:
       - uses: actions/checkout@v3
@@ -39,8 +41,14 @@ jobs:
           bundle exec rails db:create RAILS_ENV=test
           bundle exec rails db:schema:load RAILS_ENV=test
 
-      - name: Run Ruby tests
-        run: bundle exec rake
+      - name: Run Ruby tests with coverage
+        run: |
+          bundle exec rails test
+
+      - name: List coverage files
+        run: |
+          ls -la coverage/
+          cat coverage/lcov.info || echo "lcov.info not found"
 
       - name: Generate Coverage Badge
         uses: coverallsapp/github-action@v2
