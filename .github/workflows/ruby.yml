@@ -1,0 +1,40 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Ruby
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3.0"
+          bundler-cache: true
+
+      - name: Create database directories
+        run: |
+          mkdir -p db
+          mkdir -p tmp
+
+      - name: Setup test database
+        run: |
+          bundle exec rails db:create RAILS_ENV=test
+          bundle exec rails db:schema:load RAILS_ENV=test
+
+      - name: Run tests
+        run: bundle exec rake
