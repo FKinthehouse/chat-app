@@ -121,6 +121,72 @@
           setTimeout(function() { element.style.display = 'none'; }, 500);
         }
       }
+
+      // Typing indicator fix - ensures it always works consistently
+      document.addEventListener("DOMContentLoaded", fixTypingIndicator);
+      document.addEventListener("turbo:load", fixTypingIndicator);
+      document.addEventListener("turbo:frame-load", fixTypingIndicator);
+      
+      function fixTypingIndicator() {
+        // Make sure the typing indicator element exists
+        let typingIndicator = document.getElementById("typing-indicator");
+        if (!typingIndicator && document.getElementById("messages")) {
+          // Create it if it doesn't exist but messages container does
+          typingIndicator = document.createElement("div");
+          typingIndicator.id = "typing-indicator";
+          typingIndicator.className = "text-gray-500 text-sm pl-4 italic hidden";
+          typingIndicator.style.cssText = "margin-top: 8px; margin-bottom: 8px; font-style: italic; color: #6b7280;";
+          
+          const messagesContainer = document.getElementById("messages");
+          if (messagesContainer.parentNode) {
+            messagesContainer.parentNode.insertBefore(typingIndicator, messagesContainer.nextSibling);
+          }
+        }
+        
+        // Ensure typing event handlers are properly set up
+        const messageInput = document.getElementById("message_content");
+        if (messageInput && !messageInput._typingHandlerAttached) {
+          // Track when typing was last sent
+          let lastTypingTime = 0;
+          let typingTimer;
+          
+          messageInput.addEventListener("input", function() {
+            const now = Date.now();
+            clearTimeout(typingTimer);
+            
+            // Only send typing notification if enough time has passed
+            if (now - lastTypingTime > 2000) {
+              lastTypingTime = now;
+              
+              // Try multiple ways to send the typing notification
+              try {
+                if (window.currentChatSubscription) {
+                  window.currentChatSubscription.typing();
+                } else if (window.consumer && window.consumer.subscriptions) {
+                  // Find any chat subscription
+                  const subs = window.consumer.subscriptions.subscriptions;
+                  for (let i = 0; i < subs.length; i++) {
+                    const sub = JSON.parse(subs[i].identifier);
+                    if (sub.channel === "ChatChannel") {
+                      window.consumer.subscriptions.subscriptions[i].typing();
+                      break;
+                    }
+                  }
+                }
+              } catch (e) {
+                console.log("Error sending typing notification:", e);
+              }
+            }
+            
+            typingTimer = setTimeout(() => {
+              // Stop typing event
+            }, 1000);
+          });
+          
+          // Mark that we've attached the handler
+          messageInput._typingHandlerAttached = true;
+        }
+      }
     </script>
   </body>
 </html>
