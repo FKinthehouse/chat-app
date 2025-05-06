@@ -223,7 +223,7 @@ class ChatsController < ApplicationController
   def chatgpt_response(prompt)
     uri = URI("https://openrouter.ai/api/v1/chat/completions")
     headers = {
-      "Authorization" => "Bearer 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",
+      "Authorization" => "Bearer #{ENV['OPENROUTER_API_KEY']}",
       "Content-Type" => "application/json"
     }
     body = {
@@ -239,7 +239,7 @@ class ChatsController < ApplicationController
     end
 
     json = JSON.parse(response.body)
-    json.dig("choices", 0, "message", "content") || "Sorry, I couldn't get a response from ChatGPT."
+    json.dig("choices", 0, "message", "content") || use_gemini_response(prompt)
   rescue => e
     Rails.logger.error "ChatGPT API error: #{e.message}"
     "Sorry, there was an error contacting ChatGPT."
@@ -278,9 +278,36 @@ class ChatsController < ApplicationController
       return "I can chat with you, answer questions, tell jokes, provide information about this app, and have friendly conversations. Just ask me anything!"
     elsif message.match?(/\bhow does this app work\b/) || message.match?(/\bhow to use\b/)
       return "This chat app lets you message other users and chat with me (an AI assistant). You can send messages, share files, and update your status. Try exploring the interface to see all the features!"
+    elsif message.match?(/\bgemini\b/)
+      Rails.logger.info "Gemini message: #{message}"
+      return use_gemini_response(message)
     else
       # Fallback to ChatGPT for complex queries
       return chatgpt_response(message)
     end
+  end
+
+  def use_gemini_response(prompt)
+    gemini_api_key  = ENV['GEMINI_API_KEY']
+    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=#{gemini_api_key}")
+    headers = {
+      "Content-Type" => "application/json"
+    }
+    body = { "contents": [{
+      "parts":[{"text": prompt}]
+      }]
+    }.to_json
+
+    response = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+      req = Net::HTTP::Post.new(uri, headers)
+      req.body = body
+      http.request(req)
+    end
+    Rails.logger.info "Gemini response: #{response.body}"
+    json = JSON.parse(response.body)
+    json.dig("candidates", 0, "content", "parts", 0, "text")
+  rescue => e
+    Rails.logger.error "Gemini API error: #{e.message}"
+    "Sorry, there was an error contacting Gemini."
   end
 end

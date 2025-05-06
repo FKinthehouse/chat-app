@@ -407,4 +407,79 @@
       }
     });
   });
+
+  // Clear the message input after sending a message
+  document.addEventListener('DOMContentLoaded', function() {
+    var chatForm = document.getElementById('message-form');
+    var chatInput = chatForm ? chatForm.querySelector('input[name="message[content]"]') : null;
+
+    if (chatForm && chatInput) {
+      chatForm.addEventListener('submit', function() {
+        setTimeout(function() {
+          chatInput.value = '';
+        }, 100);
+      });
+    }
+
+    // Always scroll to the bottom on page load
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  });
+
+  // Also scroll to bottom after new message is added (Turbo/Hotwire support)
+  document.addEventListener('turbo:load', function() {
+    var messagesContainer = document.getElementById('messages-container');
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  });
+
+  function scrollMessagesToBottom() {
+    var messagesContainer = document.getElementById('messages');
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight + 1000;
+    }
+  }
+
+  function clearMessageInput() {
+    var chatForm = document.getElementById('message-form');
+    var chatInput = chatForm ? chatForm.querySelector('input[name="message[content]"]') : null;
+    if (chatInput) chatInput.value = '';
+  }
+
+  // On page load and Turbo navigation
+  document.addEventListener('DOMContentLoaded', function() {
+    scrollMessagesToBottom();
+  });
+  document.addEventListener('turbo:load', function() {
+    scrollMessagesToBottom();
+  });
+
+  // On form submit (manual and AJAX)
+  var chatForm = document.getElementById('message-form');
+  if (chatForm) {
+    chatForm.addEventListener('submit', function() {
+      setTimeout(function() {
+        clearMessageInput();
+        scrollMessagesToBottom();
+      }, 100);
+    });
+
+    // For Rails UJS AJAX
+    chatForm.addEventListener('ajax:success', function() {
+      clearMessageInput();
+      scrollMessagesToBottom();
+    });
+
+    // For Turbo Streams
+    document.addEventListener('turbo:submit-end', function(event) {
+      if (event.target === chatForm) {
+        setTimeout(function() {
+          clearMessageInput();
+          scrollMessagesToBottom();
+        }, 100);
+      }
+    });
+  }
 </script>
