@@ -2,8 +2,6 @@
 
 A real-time chat application with multiple features ideal for team communication.
 
-[![codecov](https://codecov.io/gh/FKinthehouse/chat-app/branch/main/graph/badge.svg)](https://codecov.io/gh/FKinthehouse/chat-app)
-
 ## Features
 
 - **Real-Time Communication**: Instant message delivery with ActionCable WebSockets
