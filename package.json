@@ -1,5 +1,41 @@
 {
+  "name": "chat_app",
+  "private": true,
   "dependencies": {
     "emoji-picker-element": "^1.26.3"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.27.1",
+    "@rails/actioncable": "^8.0.200",
+    "@testing-library/jest-dom": "^6.6.3",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "jest": {
+    "roots": [
+      "spec/javascript"
+    ],
+    "testEnvironment": "jsdom",
+    "moduleDirectories": [
+      "node_modules",
+      "app/javascript"
+    ],
+    "moduleFileExtensions": [
+      "js"
+    ],
+    "collectCoverageFrom": [
+      "app/javascript/**/*.js"
+    ],
+    "coverageReporters": [
+      "text",
+      "lcov"
+    ],
+    "coverageDirectory": "coverage/jest"
   }
 }

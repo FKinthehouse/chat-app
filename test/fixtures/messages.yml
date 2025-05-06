@@ -1,13 +1,29 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  content: MyText
-  user: one
-  chat: one
-  read: false
+  id: 1
+  content: "Hello, this is a test message"
+  user_id: 1
+  chat_id: 1
+  read: true
 
 two:
-  content: MyText
-  user: two
-  chat: two
+  id: 2
+  content: "Reply to the test message"
+  user_id: 2
+  chat_id: 1
+  read: false
+
+three:
+  id: 3
+  content: "Group chat message"
+  user_id: 1
+  chat_id: 2
+  read: true
+
+four:
+  id: 4
+  content: "Another group chat message"
+  user_id: 2
+  chat_id: 2
   read: false
