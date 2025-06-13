@@ -72,7 +72,7 @@ group :test do
 end
 
 gem "rspec-rails", "~> 8.0", groups: [:development, :test]
-gem "factory_bot_rails", "~> 6.4", groups: [:development, :test]
+gem "factory_bot_rails", "~> 6.5", groups: [:development, :test]
 gem "faker", "~> 3.5", groups: [:development, :test]
 gem "simplecov", "~> 0.22.0", groups: [:development, :test]
 gem "simplecov-lcov", "~> 0.8.0", require: false, group: :test
